@@ -89,16 +89,15 @@ The CI pipeline runs on every push and pull request to `main` and `develop` bran
 
 ## 📊 Test Coverage
 
-Current test coverage: **100%**
+Current test coverage: **~82%**
 
-- All API endpoints tested
-- Error handling verified
+- API endpoints tested
+- Error handling verified  
 - Response format validation
 
 ## 🌐 API Endpoints
 
 - `GET /` - Welcome message with timestamp
-- `GET /health` - Health check with uptime
 
 ## 🤝 Contributing
 

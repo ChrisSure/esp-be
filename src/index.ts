@@ -15,14 +15,6 @@ app.get('/', (req: Request, res: Response) => {
   });
 });
 
-app.get('/health', (req: Request, res: Response) => {
-  res.json({
-    status: 'OK',
-    uptime: process.uptime(),
-    timestamp: new Date().toISOString(),
-  });
-});
-
 // Start server only if this file is run directly
 if (require.main === module) {
   app.listen(PORT, () => {
