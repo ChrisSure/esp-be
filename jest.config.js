@@ -12,4 +12,8 @@ module.exports = {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
+  // Ensure Jest exits cleanly
+  testTimeout: 10000,
+  forceExit: true,
+  detectOpenHandles: true,
 };
