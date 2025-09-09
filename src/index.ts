@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/', (req: Request, res: Response) => {
   res.json({
     message: 'Hello World! Express.js + TypeScript is running!',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -19,7 +19,7 @@ app.get('/health', (req: Request, res: Response) => {
   res.json({
     status: 'OK',
     uptime: process.uptime(),
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
