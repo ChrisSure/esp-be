@@ -1,5 +1,9 @@
 import express from 'express';
+import dotenv from 'dotenv';
 import { MainController } from './controllers/main';
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,6 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.get('/', MainController.getHelloWorld);
+app.get('/test-openai', MainController.testOpenAI);
 
 // Start server only if this file is run directly
 if (require.main === module) {
