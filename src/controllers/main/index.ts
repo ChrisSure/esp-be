@@ -14,7 +14,7 @@ export class MainController {
 
   static async testOpenAI(req: Request, res: Response): Promise<void> {
     const timestamp = new Date().toISOString();
-    
+
     try {
       // Check if API key is provided
       if (!process.env.OPENAI_API_KEY) {
@@ -39,7 +39,8 @@ export class MainController {
         messages: [
           {
             role: 'user',
-            content: 'Say "Hello from OpenAI!" and confirm that the API integration is working.',
+            content:
+              'Say "Hello from OpenAI!" and confirm that the API integration is working.',
           },
         ],
         max_tokens: 50,
@@ -48,18 +49,20 @@ export class MainController {
       const response: OpenAITestResponse = {
         success: true,
         message: 'OpenAI API call successful!',
-        openaiResponse: completion.choices[0]?.message?.content || 'No response content',
+        openaiResponse:
+          completion.choices[0]?.message?.content || 'No response content',
         timestamp,
       };
 
       res.json(response);
     } catch (error) {
       console.error('OpenAI API Error:', error);
-      
+
       const response: OpenAITestResponse = {
         success: false,
         message: 'Failed to call OpenAI API',
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        error:
+          error instanceof Error ? error.message : 'Unknown error occurred',
         timestamp,
       };
 
