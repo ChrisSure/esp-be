@@ -10,3 +10,11 @@ export interface OpenAITestResponse {
   error?: string;
   timestamp: string;
 }
+
+export interface AudioProcessingResponse {
+  success: boolean;
+  transcription?: string;
+  aiResponse?: string;
+  error?: string;
+  timestamp: string;
+}

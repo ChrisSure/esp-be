@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import OpenAI from 'openai';
-import { HelloWorldResponse, OpenAITestResponse } from './core/interfaces';
+import { HelloWorldResponse, AudioProcessingResponse } from './core/interfaces';
+import fs from 'fs';
 
 export class MainController {
   static getHelloWorld(req: Request, res: Response): void {
@@ -12,19 +13,16 @@ export class MainController {
     res.json(response);
   }
 
-  static async testOpenAI(req: Request, res: Response): Promise<void> {
-    const timestamp = new Date().toISOString();
-
+  static async processAudioRecord(req: Request, res: Response): Promise<void> {
     try {
-      // Check if API key is provided
-      if (!process.env.OPENAI_API_KEY) {
-        const response: OpenAITestResponse = {
+      // Check if file was uploaded
+      if (!req.file) {
+        const errorResponse: AudioProcessingResponse = {
           success: false,
-          message: 'OpenAI API key not found in environment variables',
-          error: 'Please set OPENAI_API_KEY in your .env file',
-          timestamp,
+          error: 'No audio file provided',
+          timestamp: new Date().toISOString(),
         };
-        res.status(400).json(response);
+        res.status(400).json(errorResponse);
         return;
       }
 
@@ -33,40 +31,56 @@ export class MainController {
         apiKey: process.env.OPENAI_API_KEY,
       });
 
-      // Make a simple test call to OpenAI
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+      // Step 1: Convert audio to text using Whisper
+      const transcription = await openai.audio.transcriptions.create({
+        file: fs.createReadStream(req.file.path),
+        model: 'whisper-1',
+      });
+
+      const transcribedText = transcription.text;
+
+      // Step 2: Send transcribed text to OpenAI for AI response
+      const chatCompletion = await openai.chat.completions.create({
         messages: [
           {
             role: 'user',
-            content:
-              'Say "Hello from OpenAI!" and confirm that the API integration is working.',
+            content: transcribedText,
           },
         ],
-        max_tokens: 50,
+        model: 'gpt-3.5-turbo',
       });
 
-      const response: OpenAITestResponse = {
+      const aiResponse =
+        chatCompletion.choices[0]?.message?.content || 'No response generated';
+
+      // Clean up uploaded file
+      fs.unlinkSync(req.file.path);
+
+      // Return successful response
+      const response: AudioProcessingResponse = {
         success: true,
-        message: 'OpenAI API call successful!',
-        openaiResponse:
-          completion.choices[0]?.message?.content || 'No response content',
-        timestamp,
+        transcription: transcribedText,
+        aiResponse: aiResponse,
+        timestamp: new Date().toISOString(),
       };
 
       res.json(response);
     } catch (error) {
-      console.error('OpenAI API Error:', error);
+      // Clean up file if it exists
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
 
-      const response: OpenAITestResponse = {
+      console.error('Error processing audio:', error);
+
+      const errorResponse: AudioProcessingResponse = {
         success: false,
-        message: 'Failed to call OpenAI API',
         error:
           error instanceof Error ? error.message : 'Unknown error occurred',
-        timestamp,
+        timestamp: new Date().toISOString(),
       };
 
-      res.status(500).json(response);
+      res.status(500).json(errorResponse);
     }
   }
 }
