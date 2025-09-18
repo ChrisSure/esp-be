@@ -53,6 +53,26 @@ export class MainController {
       const aiResponse =
         chatCompletion.choices[0]?.message?.content || 'No response generated';
 
+      // Step 3: Convert AI response to speech using OpenAI TTS
+      let audioBuffer: string | undefined;
+
+      if (aiResponse && aiResponse !== 'No response generated') {
+        try {
+          const mp3 = await openai.audio.speech.create({
+            model: 'tts-1',
+            voice: 'nova', // Female voice
+            input: aiResponse,
+          });
+
+          // Convert the response to a buffer and encode as base64
+          const buffer = Buffer.from(await mp3.arrayBuffer());
+          audioBuffer = buffer.toString('base64');
+        } catch (ttsError) {
+          console.error('Error generating TTS audio:', ttsError);
+          // Continue without audio if TTS fails
+        }
+      }
+
       // Clean up uploaded file
       fs.unlinkSync(req.file.path);
 
@@ -61,6 +81,7 @@ export class MainController {
         success: true,
         transcription: transcribedText,
         aiResponse: aiResponse,
+        audioBuffer: audioBuffer,
         timestamp: new Date().toISOString(),
       };
 

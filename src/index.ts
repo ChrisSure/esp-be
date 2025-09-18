@@ -63,6 +63,8 @@ const upload = multer({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Note: Static file serving removed since we now stream audio directly
+
 // Routes
 app.get('/', MainController.getHelloWorld);
 
