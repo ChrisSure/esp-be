@@ -76,6 +76,10 @@ app.get('/test-cors', (req, res) => {
   });
 });
 
+// Conversation management routes
+app.post('/conversation/start', MainController.startConversation);
+app.get('/conversation/list', MainController.listConversations);
+
 app.post('/record', upload.single('audio'), MainController.processAudioRecord);
 
 // Start server only if this file is run directly
